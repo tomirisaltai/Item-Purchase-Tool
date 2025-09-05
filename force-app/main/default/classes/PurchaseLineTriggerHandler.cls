@@ -21,7 +21,7 @@ public with sharing class PurchaseLineTriggerHandler {
                 totalItems += a;
                 grandTotal += a * u;
             }
-            p.TotalItems__c = totalItems;
+            p.TotalItems__c = (Integer)totalItems;
             p.GrandTotal__c = grandTotal;
             ups.add(p);
         }
