@@ -1,0 +1,25 @@
+<template>
+  <lightning-card title="Item Purchase Tool">
+    <div class="slds-p-around_medium">
+      <template if:true={hasAccount}>
+        <div class="slds-text-title_caps slds-m-bottom_x-small">Account</div>
+        <div><b>Name:</b> {account.data.fields.Name.value}</div>
+        <div><b>Number:</b> {account.data.fields.AccountNumber.value}</div>
+        <div><b>Industry:</b> {account.data.fields.Industry.value}</div>
+      </template>
+
+      <c-item-filters total={total} onchangefilters={handleFilters}></c-item-filters>
+
+      <c-item-list
+        items={items}
+        total={total}
+        page={page}
+        page-size={pageSize}
+        loading={loading}
+        onprev={handlePrev}
+        onnext={handleNext}
+        onrowaction={handleRowAction}>
+      </c-item-list>
+    </div>
+  </lightning-card>
+</template>

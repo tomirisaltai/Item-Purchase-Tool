@@ -1,0 +1,36 @@
+<template>
+  <div class="slds-grid slds-wrap slds-p-around_small slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-4">
+      <lightning-combobox
+        name="family"
+        label="Family"
+        value={family}
+        options={familyOptions}
+        onchange={handleChange}>
+      </lightning-combobox>
+    </div>
+
+    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-4">
+      <lightning-combobox
+        name="type"
+        label="Type"
+        value={type}
+        options={typeOptions}
+        onchange={handleChange}>
+      </lightning-combobox>
+    </div>
+
+    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-4">
+      <lightning-input
+        name="q"
+        label="Search"
+        value={q}
+        oninput={handleSearchInput}>
+      </lightning-input>
+    </div>
+
+    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-4 slds-p-top_large">
+      <lightning-badge label={total}></lightning-badge>
+    </div>
+  </div>
+</template>
