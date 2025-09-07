@@ -1,6 +1,8 @@
 <template>
   <lightning-card title="Item Purchase Tool">
     <div class="slds-p-around_medium">
+
+      <!-- ACCOUNT INFO -->
       <template if:true={hasAccount}>
         <div class="slds-text-title_caps slds-m-bottom_x-small">Account</div>
         <div><b>Name:</b> {account.data.fields.Name.value}</div>
@@ -8,7 +10,11 @@
         <div><b>Industry:</b> {account.data.fields.Industry.value}</div>
       </template>
 
-      <c-item-filters total={total} onchangefilters={handleFilters}></c-item-filters>
+      <!-- FILTER BAR -->
+      <c-item-filters
+        total={total}
+        onchangefilters={handleFilters}>
+      </c-item-filters>
 
       <c-item-list
         items={items}
@@ -18,8 +24,52 @@
         loading={loading}
         onprev={handlePrev}
         onnext={handleNext}
-        onrowaction={handleRowAction}>
+        onrefresh={handleRefresh}
+        onaddtocart={handleAddToCart}
+        >
       </c-item-list>
+
+      <template if:true={isCartOpen}>
+        <section role="dialog" class="slds-modal slds-fade-in-open" aria-modal="true">
+          <div class="slds-modal__container">
+            <header class="slds-modal__header">
+              <h2 class="slds-text-heading_medium">Shopping Cart</h2>
+            </header>
+
+            <div class="slds-modal__content slds-p-around_medium">
+              <template if:true={cartItems.length}>
+                <ul class="slds-has-dividers_bottom slds-m-bottom_medium">
+                  <template for:each={cartItems} for:item="c" for:index="i">
+                    <li key={c.Id} class="slds-item slds-p-vertical_x-small">
+                      <div class="slds-grid slds-grid_align-spread">
+                        <div>
+                          <b>{c.Name}</b>
+                          <span class="slds-text-color_weak slds-m-left_small">{c.Family__c} / {c.Type__c}</span>
+                        </div>
+                        <div>₸{c.Price__c}</div>
+                      </div>
+                    </li>
+                  </template>
+                </ul>
+                <div class="slds-grid slds-grid_align-spread slds-m-bottom_small">
+                  <div class="slds-text-title_caps">Total</div>
+                  <div class="slds-text-heading_small">₸{cartTotal}</div>
+                </div>
+              </template>
+              <template if:false={cartItems.length}>
+                <p>No items in cart.</p>
+              </template>
+            </div>
+
+            <footer class="slds-modal__footer">
+              <lightning-button variant="neutral" label="Close" onclick={closeCart} class="slds-m-right_small"></lightning-button>
+              <lightning-button variant="brand" label="Checkout" onclick={checkout}></lightning-button>
+            </footer>
+          </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+      </template>
+
     </div>
   </lightning-card>
 </template>

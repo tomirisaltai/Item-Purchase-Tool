@@ -2,14 +2,14 @@ import { LightningElement, api, track } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
 export default class ItemList extends LightningElement {
-  // ----- inputs from parent -----
-  @api items = [];          // rows
-  @api total = 0;           // total count
-  @api loading = false;     // used by template <template if:true={loading}>
-  @api page = 1;            // current page (1-based)
-  @api pageSize = 20;       // rows per page
 
-  // ----- datatable columns (add action column) -----
+  @api items = [];      
+  @api total = 0;       
+  @api loading = false;    
+  @api page = 1;     
+  @api pageSize = 20;     
+
+
   columns = [
     { label: 'Name', fieldName: 'Name' },
     { label: 'Family', fieldName: 'Family__c' },
@@ -25,7 +25,7 @@ export default class ItemList extends LightningElement {
     ]);
   }
 
-  // ----- derived values used in template -----
+
   get hasRows() {
     return Array.isArray(this.items) && this.items.length > 0;
   }
@@ -79,7 +79,6 @@ export default class ItemList extends LightningElement {
   handleEditSuccess() {
     this.dispatchEvent(new ShowToastEvent({ title: 'Item saved', variant: 'success' }));
     this.closeDetails();
-    // let parent reload data
     this.dispatchEvent(new CustomEvent('refresh'));
   }
 }
