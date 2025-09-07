@@ -6,9 +6,9 @@
   <valueSet>
     <valueSetDefinition>
       <sorted>false</sorted>
-      <value><fullName>Apple</fullName><default>true</default></value>
-      <value><fullName>Samsung</fullName><default>false</default></value>
-      <value><fullName>Xiaomi</fullName><default>false</default></value>
+      <value><fullName>Laptops</fullName><default>true</default></value>
+      <value><fullName>Phones</fullName><default>false</default></value>
+      <value><fullName>Headphones</fullName><default>false</default></value>
     </valueSetDefinition>
   </valueSet>
 </CustomField>

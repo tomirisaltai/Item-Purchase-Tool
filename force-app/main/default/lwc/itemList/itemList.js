@@ -15,6 +15,8 @@ export default class ItemList extends LightningElement {
     { label: 'Family', fieldName: 'Family__c' },
     { label: 'Type', fieldName: 'Type__c' },
     { label: 'Price', fieldName: 'Price__c', type: 'currency' },
+    { label: 'Description', fieldName: 'Description__c', wrapText: true },
+
     { type: 'action', typeAttributes: { rowActions: this.getRowActions } }
   ];
 

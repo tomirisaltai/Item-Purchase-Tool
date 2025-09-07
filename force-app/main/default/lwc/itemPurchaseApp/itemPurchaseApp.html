@@ -82,7 +82,6 @@
         <div class="slds-backdrop slds-backdrop_open"></div>
       </template>
 
-      <!-- MANAGER: NEW ITEM MODAL -->
       <template if:true={isNewItemOpen}>
         <section role="dialog" class="slds-modal slds-fade-in-open" aria-modal="true">
           <div class="slds-modal__container">
@@ -100,6 +99,7 @@
                   <div class="slds-col slds-size_1-of-2">
                     <lightning-input-field field-name="Type__c"></lightning-input-field>
                     <lightning-input-field field-name="Price__c"></lightning-input-field>
+                    <lightning-input-field field-name="Description__c"></lightning-input-field>
                   </div>
                 </div>
                 <div class="slds-m-top_medium slds-text-align_right">
