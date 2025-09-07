@@ -10,12 +10,24 @@
         <div><b>Industry:</b> {account.data.fields.Industry.value}</div>
       </template>
 
+      <!-- MANAGER-ONLY: NEW ITEM BUTTON -->
+      <template if:true={isManager}>
+        <div class="slds-m-bottom_small">
+          <lightning-button
+            variant="brand"
+            label="New Item"
+            onclick={openNewItemModal}>
+          </lightning-button>
+        </div>
+      </template>
+
       <!-- FILTER BAR -->
       <c-item-filters
         total={total}
         onchangefilters={handleFilters}>
       </c-item-filters>
 
+      <!-- ITEMS LIST -->
       <c-item-list
         items={items}
         total={total}
@@ -25,10 +37,10 @@
         onprev={handlePrev}
         onnext={handleNext}
         onrefresh={handleRefresh}
-        onaddtocart={handleAddToCart}
-        >
+        onaddtocart={handleAddToCart}>
       </c-item-list>
 
+      <!-- CART MODAL -->
       <template if:true={isCartOpen}>
         <section role="dialog" class="slds-modal slds-fade-in-open" aria-modal="true">
           <div class="slds-modal__container">
@@ -65,6 +77,37 @@
               <lightning-button variant="neutral" label="Close" onclick={closeCart} class="slds-m-right_small"></lightning-button>
               <lightning-button variant="brand" label="Checkout" onclick={checkout}></lightning-button>
             </footer>
+          </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+      </template>
+
+      <!-- MANAGER: NEW ITEM MODAL -->
+      <template if:true={isNewItemOpen}>
+        <section role="dialog" class="slds-modal slds-fade-in-open" aria-modal="true">
+          <div class="slds-modal__container">
+            <header class="slds-modal__header">
+              <h2 class="slds-text-heading_medium">Create New Item</h2>
+            </header>
+            <div class="slds-modal__content slds-p-around_medium">
+              <lightning-record-edit-form object-api-name="Item__c" onsuccess={handleNewItemSuccess}>
+                <lightning-messages></lightning-messages>
+                <div class="slds-grid slds-gutters">
+                  <div class="slds-col slds-size_1-of-2">
+                    <lightning-input-field field-name="Name"></lightning-input-field>
+                    <lightning-input-field field-name="Family__c"></lightning-input-field>
+                  </div>
+                  <div class="slds-col slds-size_1-of-2">
+                    <lightning-input-field field-name="Type__c"></lightning-input-field>
+                    <lightning-input-field field-name="Price__c"></lightning-input-field>
+                  </div>
+                </div>
+                <div class="slds-m-top_medium slds-text-align_right">
+                  <lightning-button variant="neutral" label="Cancel" onclick={closeNewItemModal} class="slds-m-right_small"></lightning-button>
+                  <lightning-button variant="brand" label="Save" type="submit"></lightning-button>
+                </div>
+              </lightning-record-edit-form>
+            </div>
           </div>
         </section>
         <div class="slds-backdrop slds-backdrop_open"></div>

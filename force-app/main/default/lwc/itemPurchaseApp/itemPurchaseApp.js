@@ -1,25 +1,44 @@
 import { LightningElement, api, track, wire } from 'lwc';
 import { NavigationMixin, CurrentPageReference } from 'lightning/navigation';
+import { getRecord } from 'lightning/uiRecordApi';
 
 import listItems from '@salesforce/apex/ItemController.listItems';
 import countItems from '@salesforce/apex/ItemController.countItems';
 import createPurchase from '@salesforce/apex/PurchaseController.createPurchase';
+import isCurrentUserManager from '@salesforce/apex/UserController.isCurrentUserManager';
+
+import ACCOUNT_NAME from '@salesforce/schema/Account.Name';
+import ACCOUNT_NUMBER from '@salesforce/schema/Account.AccountNumber';
+import ACCOUNT_INDUSTRY from '@salesforce/schema/Account.Industry';
 
 export default class ItemPurchaseApp extends NavigationMixin(LightningElement) {
-  /** Account Id (set automatically on Account record pages; or via URL param c__accountId) */
   @api recordId;
 
-  /** Read c__accountId when this page is opened from a custom tab/button */
   @wire(CurrentPageReference)
   getStateFromUrl(pageRef) {
     if (pageRef && !this.recordId) {
       const aid = pageRef?.state?.c__accountId;
       if (aid) {
         this.recordId = aid;
-        // eslint-disable-next-line no-console
         console.log('recordId set from URL c__accountId =', this.recordId);
       }
     }
+  }
+
+  // ---------- Account header ----------
+  @wire(getRecord, { recordId: '$recordId', fields: [ACCOUNT_NAME, ACCOUNT_NUMBER, ACCOUNT_INDUSTRY] })
+  account;
+
+  get hasAccount() {
+    return !!(this.account && this.account.data);
+  }
+
+  // ---------- manager flag ----------
+  @track isManager = false;
+  @wire(isCurrentUserManager)
+  wiredIsManager({ data, error }) {
+    if (data !== undefined) this.isManager = data === true;
+    else if (error) this.isManager = false;
   }
 
   // ---------- filters / pagination ----------
@@ -33,6 +52,11 @@ export default class ItemPurchaseApp extends NavigationMixin(LightningElement) {
   // ---------- cart ----------
   @track cartItems = [];
   @track isCartOpen = false;
+
+  // ---------- manager: new item modal ----------
+  @track isNewItemOpen = false;
+  openNewItemModal = () => (this.isNewItemOpen = true);
+  closeNewItemModal = () => (this.isNewItemOpen = false);
 
   // ---------- lifecycle ----------
   connectedCallback() {
@@ -82,6 +106,7 @@ export default class ItemPurchaseApp extends NavigationMixin(LightningElement) {
         offsetVal
       });
 
+
       console.log('Loaded items:', this.items?.length, 'Total:', this.total);
     } catch (e) {
       console.error('load error', e);
@@ -97,6 +122,7 @@ export default class ItemPurchaseApp extends NavigationMixin(LightningElement) {
     const item = event.detail.item;
     this.cartItems = [...this.cartItems, { ...item }];
     this.isCartOpen = true;
+
     console.log('Added to cart:', item?.Id, 'Cart size:', this.cartItems.length);
   }
 
@@ -108,18 +134,21 @@ export default class ItemPurchaseApp extends NavigationMixin(LightningElement) {
     return (this.cartItems || []).reduce((sum, r) => sum + (r.Price__c || 0), 0);
   }
 
-  // ---------- checkout with diagnostics ----------
+  // ---------- checkout ----------
   async checkout() {
+
     console.log('Checkout started, accountId =', this.recordId);
 
     try {
       const itemIds = (this.cartItems || []).map(i => i.Id);
+
       console.log('Sending to Apex, itemIds =', itemIds);
 
       const purchaseId = await createPurchase({
         accountId: this.recordId,
         itemIds
       });
+
 
       console.log('Apex returned purchase Id =', purchaseId);
 
@@ -132,16 +161,26 @@ export default class ItemPurchaseApp extends NavigationMixin(LightningElement) {
             actionName: 'view'
           }
         });
+
         console.log('Navigation triggered to Purchase__c', purchaseId);
       } else {
+
         console.error('No purchaseId returned from Apex');
       }
     } catch (e) {
+
       console.error('checkout error:', e);
     } finally {
+
       console.log('Closing cart modal');
       this.isCartOpen = false;
       this.cartItems = [];
     }
+  }
+
+  // ---------- manager----------
+  handleNewItemSuccess() {
+    this.isNewItemOpen = false;
+    this.load(); //refresh
   }
 }
