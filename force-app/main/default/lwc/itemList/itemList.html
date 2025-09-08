@@ -1,21 +1,77 @@
 <template>
   <div class="slds-m-top_medium">
 
+    <!-- Top bar -->
+    <div class="slds-grid slds-grid_align-spread slds-m-bottom_small">
+      <div class="slds-text-title_caps">
+        Showing {fromNum}-{toNum} of {total}
+      </div>
+      <div class="slds-button-group" role="group">
+        <lightning-button-icon icon-name="utility:refresh" alternative-text="Refresh" onclick={handleRefresh}></lightning-button-icon>
+      </div>
+    </div>
+
+    <!-- Loading -->
     <template if:true={loading}>
       <lightning-spinner alternative-text="Loading items"></lightning-spinner>
     </template>
 
+    <!-- Card grid -->
     <template if:true={hasRows}>
-      <lightning-datatable
-          key-field="Id"
-          data={items}
-          columns={columns}
-          hide-checkbox-column
-          onrowaction={handleRowAction}>
-      </lightning-datatable>
+      <div class="grid">
+        <template for:each={items} for:item="it">
+          <article key={it.Id} class="card slds-card">
+            <div class="media">
+              <template if:true={it.Image__c}>
+                <img src={it.Image__c} alt={it.Name} />
+              </template>
+              <template if:false={it.Image__c}>
+                <div class="placeholder">
+                  <span class="slds-text-color_weak">No Image</span>
+                </div>
+              </template>
+            </div>
 
+            <div class="body slds-p-around_small">
+              <div class="name slds-text-heading_small">{it.Name}</div>
+
+              <div class="chips slds-m-vertical_x-small">
+                <span class="chip">{it.Family__c}</span>
+                <span class="chip chip--ghost">{it.Type__c}</span>
+              </div>
+
+              <div class="price slds-m-bottom_x-small">
+                ${it.Price__c}
+              </div>
+
+              <div class="desc slds-text-color_weak" title={it.Description__c}>
+                {it.Description__c}
+              </div>
+
+              <div class="actions slds-m-top_small">
+                <lightning-button
+                  label="Details"
+                  variant="neutral"
+                  data-id={it.Id}
+                  onclick={openDetails}>
+                </lightning-button>
+
+                <lightning-button
+                  class="slds-m-left_x-small"
+                  label="Add"
+                  variant="brand"
+                  data-id={it.Id}
+                  onclick={handleAdd}>
+                </lightning-button>
+              </div>
+            </div>
+          </article>
+        </template>
+      </div>
+
+      <!-- Pagination -->
       <div class="slds-m-top_small slds-grid slds-grid_align-spread slds-align_absolute-center">
-        <div>Showing {fromNum}-{toNum} of {total}</div>
+        <div></div>
         <div>
           <lightning-button label="Prev" onclick={handlePrev} disabled={disablePrev} class="slds-m-right_x-small"></lightning-button>
           <lightning-button label="Next" onclick={handleNext} disabled={disableNext}></lightning-button>
@@ -39,48 +95,32 @@
             <template if:true={selected.Image__c}>
               <img src={selected.Image__c}
                    alt={selected.Name}
-                   style="max-width:100%;max-height:240px;object-fit:cover;border-radius:8px;margin-bottom:12px;" />
+                   style="max-width:100%;max-height:280px;object-fit:cover;border-radius:8px;margin-bottom:12px;" />
             </template>
 
-            <lightning-record-view-form record-id={selected.Id} object-api-name="Item__c">
-              <div class="slds-grid slds-gutters">
-                <div class="slds-col slds-size_1-of-2">
-                  <lightning-output-field field-name="Family__c"></lightning-output-field>
-                  <lightning-output-field field-name="Type__c"></lightning-output-field>
-                  <lightning-output-field field-name="Price__c"></lightning-output-field>
-                </div>
-                <div class="slds-col slds-size_1-of-2">
-                  <lightning-output-field field-name="Image__c"></lightning-output-field>
-                </div>
+            <div class="slds-m-bottom_small slds-text-title_caps">Details</div>
+            <div class="slds-grid slds-wrap slds-gutters">
+              <div class="slds-col slds-size_1-of-2">
+                <p><b>Family:</b> {selected.Family__c}</p>
+                <p><b>Type:</b> {selected.Type__c}</p>
               </div>
-            </lightning-record-view-form>
-
-            <div class="slds-m-top_medium slds-border_top slds-p-top_medium">
-              <lightning-record-edit-form record-id={selected.Id} object-api-name="Item__c" onsuccess={handleEditSuccess}>
-                <lightning-messages></lightning-messages>
-                <div class="slds-grid slds-gutters">
-                  <div class="slds-col slds-size_1-of-2">
-                    <lightning-input-field field-name="Name"></lightning-input-field>
-                    <lightning-input-field field-name="Family__c"></lightning-input-field>
-                    <lightning-input-field field-name="Type__c"></lightning-input-field>
-                  </div>
-                  <div class="slds-col slds-size_1-of-2">
-                    <lightning-input-field field-name="Price__c"></lightning-input-field>
-                    <lightning-input-field field-name="Image__c"></lightning-input-field>
-                  </div>
-                </div>
-                <div class="slds-m-top_medium slds-text-align_right">
-                  <lightning-button variant="neutral" label="Close" onclick={closeDetails} class="slds-m-right_small"></lightning-button>
-                  <lightning-button variant="brand" label="Save" type="submit"></lightning-button>
-                </div>
-              </lightning-record-edit-form>
+              <div class="slds-col slds-size_1-of-2">
+                <p><b>Price:</b> ${selected.Price__c}</p>
+              </div>
+            </div>
+            <div class="slds-m-top_small">
+              <b>Description</b>
+              <div class="slds-text-color_weak slds-m-top_x-small">{selected.Description__c}</div>
             </div>
           </div>
 
+          <footer class="slds-modal__footer">
+            <lightning-button variant="neutral" label="Close" onclick={closeDetails} class="slds-m-right_small"></lightning-button>
+            <lightning-button variant="brand" label="Add to Cart" data-id={selected.Id} onclick={handleAdd}></lightning-button>
+          </footer>
         </div>
       </section>
       <div class="slds-backdrop slds-backdrop_open"></div>
     </template>
-
   </div>
 </template>
